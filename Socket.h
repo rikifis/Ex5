@@ -71,7 +71,7 @@ class Socket {
 		* The Function operation: sending the input data to the socket         *
 		* who connect to this socket. pure virtual method					   *
 		***********************************************************************/
-		virtual int sendData(string data, int socketDes) = 0;
+		virtual int sendData(string data, int socketDescComm) = 0;
 		/***********************************************************************
 		* function name: recive	`											   *
 		* The Input: none										               *
@@ -79,11 +79,15 @@ class Socket {
 		* The Function operation: getting data from the other socket and print *
 		* the data															   *
 		***********************************************************************/
-		virtual int receiveData(char* buffer, int size, int socketDes) = 0;
+		virtual int receiveData(char* buffer, int size, int socketDescComm) = 0;
 
 		virtual void setIp(string ip) = 0;
 
-		virtual int getDescriptor() = 0;
+		virtual int getSocketDescriptor() = 0;
+
+		virtual int getDescriptorCommunicateClient() = 0;
+
+		virtual int acceptClient() = 0;
 };
 
 #endif /* SOCKET_H_ */

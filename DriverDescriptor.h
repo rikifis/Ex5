@@ -10,7 +10,7 @@
 class DriverDescriptor {
     private:
         Driver* driver;
-        int socketDescriptor;
+        int descriptorCommunicateClient;
 
         friend class boost::serialization::access;
         template<class Archive>
@@ -21,10 +21,10 @@ class DriverDescriptor {
          */
         void serialize(Archive &ar, const unsigned int version) {
             ar & driver;
-            ar & socketDescriptor;
+            ar & descriptorCommunicateClient;
         }
     public:
-        DriverDescriptor(Driver* driver1, int socketDescriptor1);
+        DriverDescriptor(Driver* driver1, int descriptorCommunicateClient1);
         DriverDescriptor();
         void setDescriptor(int sd);
         int getDescriptor();

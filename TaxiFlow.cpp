@@ -1,11 +1,10 @@
 #include "TaxiFlow.h"
-#include "Tcp.h"
-#include "DriverDescriptor.h"
 
 BOOST_CLASS_EXPORT_GUID(Node, "Node");
 BOOST_CLASS_EXPORT_GUID(GridPt, "GridPt");
 BOOST_CLASS_EXPORT_GUID(Taxi, "Taxi");
 BOOST_CLASS_EXPORT_GUID(Luxury, "Luxury");
+
 
 int main(int argc, char *argv[]) {
     // checks we got a correct number of args.
@@ -23,10 +22,21 @@ int main(int argc, char *argv[]) {
 TaxiFlow::TaxiFlow(Socket* socket1) {
     socket = socket1;
     socket->initialize();
+    clients = new vector<DriverDescriptor*>();
+    pthread_mutex_init(&acceptMutex, 0);
+    pthread_mutex_init(&addMutex, 0);
 }
 
 TaxiFlow::~TaxiFlow() {
     delete socket;
+    // deletes the clients.
+    while (clients->size() != 0) {
+        delete clients->front();
+        clients->erase(clients->begin());
+    }
+    delete clients;
+    pthread_mutex_destroy(&acceptMutex);
+    pthread_mutex_destroy(&addMutex);
 }
 
 void TaxiFlow::getInput() {
@@ -79,6 +89,7 @@ void TaxiFlow::run() {
                 break;
             case 7:
                 closeClients();
+                break;
             // for '9' - drives the cars.
             case 9:
                 drive();
@@ -94,36 +105,16 @@ void TaxiFlow::addDrivers() {
     int numDrivers;
     // gets the number of drivers from the user.
     cin >> numDrivers;
-    char buffer[1000];
+    vector<pthread_t> threadsVec(numDrivers);
+    cout << "receiving " << numDrivers << " drivers:" << endl;
     for (int i = 0; i < numDrivers; i++) {
-        // get the driver.
-        socket->receiveData(buffer, sizeof(buffer), socket->getDescriptor());
-        DriverDescriptor* driverDes;
-        // gets the driver from client.
-        boost::iostreams::basic_array_source<char> device(buffer, sizeof(buffer));
-        boost::iostreams::stream<boost::iostreams::basic_array_source<char> > s(device);
-        // deserizlizes the driver from client.
-        boost::archive::binary_iarchive ia(s);
-        ia >> driverDes;
-        Driver* driver = driverDes->getDriver();
-        // sets the drivers map.
-        driver->setMap(center.getMap());
-        //assigns the driver his cab.
-        center.assignCab(driver);
-        //sends the cab to the driver.
-        Taxi* t = driver->getCab();
-        std::string serial_str2;
-        boost::iostreams::back_insert_device<std::string> inserter2(serial_str2);
-        boost::iostreams::stream<boost::iostreams::back_insert_device<std::string> > s2(inserter2);
-        boost::archive::binary_oarchive oa2(s2);
-        // serilizes the taxi.
-        oa2 << t;
-        // flush the stream to finish writing into the buffer
-        s2.flush();
-        // sends the taxi.
-        socket->sendData(serial_str2, socket->getDescriptor());
-        // adds the driver to the taxi center.
-        center.addDriver(driver);
+        cout << i << " ";
+        pthread_create(&threadsVec[i], NULL, getClientsWrapper, (void*)this);
+    }
+    for (int i = 0; i < numDrivers; i++) {
+         //void* driverDes;
+         pthread_join (threadsVec[i], NULL);//&driverDes);
+         //DriverDescriptor* ds = (DriverDescriptor*)driverDes;
     }
 }
 
@@ -227,13 +218,14 @@ void TaxiFlow::drive() {
     for (int i = 0; i < center.getDrivers().size(); i++) {
         if (center.getDrivers().at(i)->isDriving()) {
             // tells the client to be prepared to drive.
-            socket->sendData("go", socket->getDescriptor());
+            socket->sendData("go", socket->getDescriptorCommunicateClient());
             // drives the car.
             center.getDrivers().at(i)->drive();
             // sends the new location to client.
             std::string serial_str1;
             boost::iostreams::back_insert_device<std::string> inserter1(serial_str1);
-            boost::iostreams::stream<boost::iostreams::back_insert_device<std::string> > s1(inserter1);
+            boost::iostreams::stream
+                    <boost::iostreams::back_insert_device<std::string> > s1(inserter1);
             boost::archive::binary_oarchive oa1(s1);
             GridPt* newLocation = new GridPt(center.getDrivers().at(i)->getLocation()->getPt());
             // serilizes the new location.
@@ -241,7 +233,7 @@ void TaxiFlow::drive() {
             // flush the stream to finish writing into the buffer
             s1.flush();
             // sends the data.
-            socket->sendData(serial_str1, socket->getDescriptor());
+            socket->sendData(serial_str1, socket->getDescriptorCommunicateClient());
             delete newLocation;
         }
     }
@@ -251,11 +243,12 @@ void TaxiFlow::drive() {
         // if the driver just got a new trip.
         if (center.getDrivers().at(i)->gotNewTrip()) {
             // tells the client to be prepared to get a new trip.
-            socket->sendData("trip", socket->getDescriptor());
+            socket->sendData("trip", socket->getDescriptorCommunicateClient());
             // sends the trip.
             std::string serial_str;
             boost::iostreams::back_insert_device<std::string> inserter(serial_str);
-            boost::iostreams::stream<boost::iostreams::back_insert_device<std::string> > s(inserter);
+            boost::iostreams::stream
+                    <boost::iostreams::back_insert_device<std::string> > s(inserter);
             boost::archive::binary_oarchive oa(s);
             Trip* newTrip = center.getDrivers().at(i)->getTrip();
             // serilizes the trip.
@@ -263,7 +256,7 @@ void TaxiFlow::drive() {
             // flush the stream to finish writing into the buffer.
             s.flush();
             // sentd the new trip.
-            socket->sendData(serial_str, socket->getDescriptor());
+            socket->sendData(serial_str, socket->getDescriptorCommunicateClient());
             // deletes the trip from the taxiCenter.
             delete (center.getDrivers().at(i)->getTrip());
             center.getDrivers().at(i)->setNewTrip();
@@ -273,5 +266,65 @@ void TaxiFlow::drive() {
 
 void TaxiFlow::closeClients() {
     // tells the client he can close now.
-    socket->sendData("exit", socket->getDescriptor());
+    socket->sendData("exit", socket->getDescriptorCommunicateClient());
+}
+
+void* TaxiFlow::getClientsWrapper(void* tf) {
+    ((TaxiFlow*)tf)->getDriversFromClients();
+}
+
+void TaxiFlow::getDriversFromClients() {//void* socket) {
+    char buffer[1000];
+    // get the driver.
+
+    pthread_mutex_lock(&acceptMutex);
+
+    cout << "in accept mutex " << endl;
+
+
+    ((Tcp*)socket)->acceptClient();
+    int descriptorComm = ((Tcp*)socket)->getDescriptorCommunicateClient();
+
+    pthread_mutex_unlock(&acceptMutex);
+
+    cout << "waiting for driver " << endl;
+
+    ((Tcp*) socket)->receiveData(buffer, sizeof(buffer), descriptorComm);
+    //DriverDescriptor* driverDes;
+    Driver *driver;// = driverDes->getDriver();
+    // gets the driver from client.
+    boost::iostreams::basic_array_source<char> device(buffer, sizeof(buffer));
+    boost::iostreams::stream<boost::iostreams::basic_array_source<char> > s(device);
+    // deserizlizes the driver from client.
+    boost::archive::binary_iarchive ia(s);
+    ia >> driver;
+    // sets the drivers map.
+    driver->setMap(center.getMap());
+    //assigns the driver his cab.
+    center.assignCab(driver);
+    //sends the cab to the driver.
+    Taxi *t = driver->getCab();
+    std::string serial_str2;
+    boost::iostreams::back_insert_device<std::string> inserter2(serial_str2);
+    boost::iostreams::stream<boost::iostreams::back_insert_device<std::string> > s2(inserter2);
+    boost::archive::binary_oarchive oa2(s2);
+    // serilizes the taxi.
+    oa2 << t;
+    // flush the stream to finish writing into the buffer
+    s2.flush();
+    // sends the taxi.
+    ((Tcp*) socket)->sendData(serial_str2, descriptorComm);
+    // adds the driver to the taxi center.
+    //center.addDriver(driver);
+    DriverDescriptor* ds = new DriverDescriptor(driver, descriptorComm);
+
+    pthread_mutex_lock(&addMutex);
+
+    cout << ds->getDriver()->getId() << " " << ds->getDriver()->getAge() << endl;
+
+    clients->push_back(ds);
+    center.addDriver(ds->getDriver());
+
+    pthread_mutex_unlock(&addMutex);
+
 }

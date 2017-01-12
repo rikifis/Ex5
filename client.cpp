@@ -57,20 +57,22 @@ int main(int argc, char *argv[]) {
     }
     // creates the new driver and serialize it.
     Driver* driver = new Driver(id, age, status, cabId, experience);
-    DriverDescriptor* ds = new DriverDescriptor(driver, socket->getDescriptor());
+    //DriverDescriptor* ds = new DriverDescriptor(driver, ((Tcp*)socket)->getDescriptorCommunicateClient());
     std::string serial_str;
     boost::iostreams::back_insert_device<std::string> inserter(serial_str);
     boost::iostreams::stream<boost::iostreams::back_insert_device<std::string> > s(inserter);
     boost::archive::binary_oarchive oa(s);
-    oa << ds;
+    oa << driver;
     // flush the stream to finish writing into the buffer.
     s.flush();
     // send driver information to server.
-    socket->sendData(serial_str, socket->getDescriptor());
+    socket->sendData(serial_str, 0);
     ///
     char buffer[1000];
     // get the taxi of the driver.
-    socket->receiveData(buffer, sizeof(buffer), socket->getDescriptor());
+    socket->receiveData(buffer, sizeof(buffer), socket->getSocketDescriptor());
+
+    cout << "waiting for taxi " << endl;
     Taxi* taxi;
     boost::iostreams::basic_array_source<char> device2(buffer, sizeof(buffer));
     boost::iostreams::stream<boost::iostreams::basic_array_source<char> > s2(device2);
@@ -78,12 +80,14 @@ int main(int argc, char *argv[]) {
     ia2 >> taxi;
     driver->setCab(taxi);
 
+    cout << taxi->getId() << " " << taxi->getColor() << endl;
+
     string command;
     Trip* trip = new Trip();
     GridPt* location = new GridPt();
     // a loop to get the information from the server.
     do {
-        socket->receiveData(buffer, sizeof(buffer), socket->getDescriptor());
+        socket->receiveData(buffer, sizeof(buffer), socket->getSocketDescriptor());
         command = buffer;
         // if server sent "trip" we prepare to get a trip object.
         if (strcmp(command.data(), "trip") == 0) {
@@ -91,7 +95,7 @@ int main(int argc, char *argv[]) {
                 delete trip;
             }
             // gets a trip.
-            socket->receiveData(buffer, sizeof(buffer), socket->getDescriptor());
+            socket->receiveData(buffer, sizeof(buffer), socket->getSocketDescriptor());
             boost::iostreams::basic_array_source<char> device4(buffer, sizeof(buffer));
             boost::iostreams::stream<boost::iostreams::basic_array_source<char> > s4(device4);
             boost::archive::binary_iarchive ia4(s4);
@@ -104,7 +108,7 @@ int main(int argc, char *argv[]) {
                 delete location;
             }
             // gets the location.
-            socket->receiveData(buffer, sizeof(buffer), socket->getDescriptor());
+            socket->receiveData(buffer, sizeof(buffer), socket->getSocketDescriptor());
             boost::iostreams::basic_array_source<char> device5(buffer, sizeof(buffer));
             boost::iostreams::stream<boost::iostreams::basic_array_source<char> > s5(device5);
             boost::archive::binary_iarchive ia5(s5);
@@ -116,7 +120,7 @@ int main(int argc, char *argv[]) {
     } while (strcmp(command.data(), "exit") != 0);
     delete trip;
     delete driver;
-    delete ds;
+    //delete ds;
     delete location;
     delete taxi;
     delete socket;
