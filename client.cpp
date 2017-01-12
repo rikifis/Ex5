@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
     s.flush();
     // send driver information to server.
     socket->sendData(serial_str, socket->getDescriptor());
-
+    ///
     char buffer[1000];
     // get the taxi of the driver.
     socket->receiveData(buffer, sizeof(buffer), socket->getDescriptor());
