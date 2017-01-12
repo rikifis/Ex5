@@ -11,8 +11,8 @@ BOOST_CLASS_EXPORT_GUID(Luxury, "Luxury");
 using namespace std;
 using namespace boost::archive;
 /**
- * main func to run the client.
- * @param argc num of args
+ * main func to run the client
+ * @param argc num of args.
  * @param argv args to main
  * @return 0 for success
  */
