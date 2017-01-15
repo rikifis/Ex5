@@ -13,16 +13,17 @@ int main(int argc, char *argv[]) {
     }
     // initializes the servers socket.
     Socket* socket = new Tcp(1, atoi(argv[1]));
-    TaxiFlow flow = TaxiFlow(socket);
+    TaxiFlow* flow = new TaxiFlow(socket);
     // gets the input from the user and runs the taxi center.
-    flow.getInput();
+    flow->getInput();
+    delete  flow;
     return 0;
 }
 
 TaxiFlow::TaxiFlow(Socket* socket1) {
     socket = socket1;
     socket->initialize();
-    clients = new vector<DriverDescriptor*>();
+    clients = new vector<DriverDescriptor*>;
     pthread_mutex_init(&acceptMutex, 0);
     pthread_mutex_init(&addMutex, 0);
 }
@@ -113,7 +114,8 @@ void TaxiFlow::addDrivers() {
     }
     for (int i = 0; i < numDrivers; i++) {
          //void* driverDes;
-         pthread_join (threadsVec[i], NULL);//&driverDes);
+         pthread_join (threadsVec[i], NULL);//&
+         cout << "join " << i << " done" << endl;
          //DriverDescriptor* ds = (DriverDescriptor*)driverDes;
     }
 }
@@ -265,8 +267,11 @@ void TaxiFlow::drive() {
 }
 
 void TaxiFlow::closeClients() {
-    // tells the client he can close now.
-    socket->sendData("exit", socket->getDescriptorCommunicateClient());
+    int numClients = clients->size();
+    for (int i = 0; i < numClients; i++) {
+        // tells the client he can close now.
+        socket->sendData("exit", clients->at(i)->getDescriptor());
+    }
 }
 
 void* TaxiFlow::getClientsWrapper(void* tf) {

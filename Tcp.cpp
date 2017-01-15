@@ -142,6 +142,7 @@ int Tcp::acceptClient() {
 		this->descriptorCommunicateClient = accept(this->socketDescriptor,
 												   (struct sockaddr *) &client_sin, &addr_len);
 		if (this->descriptorCommunicateClient < 0) {
+            cout << "error accepting" << endl;
 			//return an error represent error at this method
 			return ERROR_ACCEPT;
 		}

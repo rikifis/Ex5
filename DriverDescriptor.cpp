@@ -11,6 +11,9 @@ DriverDescriptor::DriverDescriptor(Driver* driver1, int descriptorCommunicateCli
 DriverDescriptor::DriverDescriptor() {
 
 }
+DriverDescriptor::~DriverDescriptor() {
+
+}
 void DriverDescriptor::setDescriptor(int sd) {
     descriptorCommunicateClient = sd;
 }

@@ -26,6 +26,7 @@ class DriverDescriptor {
     public:
         DriverDescriptor(Driver* driver1, int descriptorCommunicateClient1);
         DriverDescriptor();
+        ~DriverDescriptor();
         void setDescriptor(int sd);
         int getDescriptor();
         Driver* getDriver();

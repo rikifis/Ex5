@@ -27,7 +27,7 @@ using namespace boost::archive;
 class Map : public Grid {
     private:
         // the max grid size.
-        GridPt points[2000][2000];
+        GridPt points[1000][1000];
         Point size;
         vector<Node*>* obstacles;
         friend class boost::serialization::access;
