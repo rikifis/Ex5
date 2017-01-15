@@ -55,6 +55,7 @@ int Tcp::initialize() {
 		//bind
 		if (bind(this->socketDescriptor,
 				(struct sockaddr *) &sin, sizeof(sin)) < 0) {
+            cout << "error bind " << endl;
 			//return an error represent error at this method
 			return ERROR_BIND;
 		}
@@ -62,15 +63,6 @@ int Tcp::initialize() {
 		if (listen(this->socketDescriptor, this->backLog) < 0) {
 			//return an error represent error at this method
 			return ERROR_LISTEN;
-		}
-		//accept
-		struct sockaddr_in client_sin;
-		unsigned int addr_len = sizeof(client_sin);
-		this->descriptorCommunicateClient = accept(this->socketDescriptor,
-				(struct sockaddr *) &client_sin, &addr_len);
-		if (this->descriptorCommunicateClient < 0) {
-			//return an error represent error at this method
-			return ERROR_ACCEPT;
 		}
 	//if client
 	} else {
@@ -96,11 +88,11 @@ int Tcp::initialize() {
 * The Function operation: sending the required data, using his length  *
 * and the socket descroptor											   *
 ***********************************************************************/
-int Tcp::sendData(string data, int socketDesc) {
+int Tcp::sendData(string data, int socketDescComm) {
 	int data_len = data.length();
 	const char * datas = data.c_str();
-	int sent_bytes = send(this->isServer ? this->descriptorCommunicateClient
-			: socketDesc, datas, data_len, 0);
+	int sent_bytes = send(this->isServer ? socketDescComm
+			: this->socketDescriptor, datas, data_len, 0);
 	if (sent_bytes < 0) {
 		//return an error represent error at this method
 		return ERROR_SEND;
@@ -116,9 +108,9 @@ int Tcp::sendData(string data, int socketDesc) {
 * The Function operation: getting data from the other socket to,	   *
 * enter it to the buffer and print the data							   *
 ***********************************************************************/
-int Tcp::receiveData(char* buffer, int size, int socketDesc) {
-	int read_bytes = recv(this->isServer ? this->descriptorCommunicateClient
-			              : socketDesc, buffer, size, 0);
+int Tcp::receiveData(char* buffer, int size, int socketDescComm) {
+	int read_bytes = recv(this->isServer ? socketDescComm
+			              : this->socketDescriptor, buffer, size, 0);
 	//checking the errors
 	if (read_bytes == 0) {
 		return CONNECTION_CLOSED;
@@ -133,6 +125,29 @@ int Tcp::receiveData(char* buffer, int size, int socketDesc) {
 void Tcp::setIp(string ip) {
 	ip_address = ip;
 }
-int Tcp::getDescriptor() {
-    return this->socketDescriptor;
+
+int Tcp::getSocketDescriptor() {
+	return this->socketDescriptor;
+}
+
+int Tcp::getDescriptorCommunicateClient() {
+    return this->descriptorCommunicateClient;
+}
+
+int Tcp::acceptClient() {
+	if (this->isServer) {
+		//accept
+		struct sockaddr_in client_sin;
+		unsigned int addr_len = sizeof(client_sin);
+		this->descriptorCommunicateClient = accept(this->socketDescriptor,
+												   (struct sockaddr *) &client_sin, &addr_len);
+		if (this->descriptorCommunicateClient < 0) {
+            cout << "error accepting" << endl;
+			//return an error represent error at this method
+			return ERROR_ACCEPT;
+		}
+	} else {
+		// not server.
+		return ERROR_ACCEPT;
+	}
 }

@@ -62,6 +62,7 @@ class Driver {
             ar & firstLocation;
             ar & location;
             ar & newTrip;
+            ar & route;
         }
     public:
         /**

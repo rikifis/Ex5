@@ -4,18 +4,21 @@
 
 #include "DriverDescriptor.h"
 
-DriverDescriptor::DriverDescriptor(Driver* driver1, int socketDescriptor1) {
+DriverDescriptor::DriverDescriptor(Driver* driver1, int descriptorCommunicateClient1) {
     driver = driver1;
-    socketDescriptor = socketDescriptor1;
+    descriptorCommunicateClient = descriptorCommunicateClient1;
 }
 DriverDescriptor::DriverDescriptor() {
 
 }
+DriverDescriptor::~DriverDescriptor() {
+
+}
 void DriverDescriptor::setDescriptor(int sd) {
-    socketDescriptor = sd;
+    descriptorCommunicateClient = sd;
 }
 int DriverDescriptor::getDescriptor() {
-    return socketDescriptor;
+    return descriptorCommunicateClient;
 }
 Driver* DriverDescriptor::getDriver() {
     return driver;

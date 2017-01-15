@@ -21,6 +21,6 @@ add_executable(server TaxiFlow.cpp TaxiFlow.h ${SOURCE_FILES})
 add_executable(client client.cpp ${SOURCE_FILES})
 
 
-target_link_libraries(server ${Boost_LIBRARIES})
+target_link_libraries(server -lpthread ${Boost_LIBRARIES})
 target_link_libraries(client ${Boost_LIBRARIES})
 include_directories(${Boost_INCLUDE_DIR})

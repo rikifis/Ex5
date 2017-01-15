@@ -2,6 +2,7 @@
 #define EX3_TAXIFLOW_H
 #include <iostream>
 #include <vector>
+#include <pthread.h>
 #include "Point.h"
 #include "Node.h"
 #include "TaxiCenter.h"
@@ -9,6 +10,7 @@
 #include "Trip.h"
 #include "Luxury.h"
 #include "Tcp.h"
+#include "DriverDescriptor.h"
 #include <unistd.h>
 using namespace std;
 /**
@@ -18,7 +20,11 @@ class TaxiFlow {
     private:
         TaxiCenter center;
         Socket* socket;
-        /**
+        vector<DriverDescriptor*>* clients;
+
+        pthread_mutex_t acceptMutex;
+        pthread_mutex_t addMutex;
+    /**
          * method that runs the program.
          */
         void run();
@@ -46,6 +52,13 @@ class TaxiFlow {
          * tells the clients they can close now.
          */
         void closeClients();
+        /**
+         * gets driver from client
+         * @param socket the socket that will communicate.
+         * @return a driverDescriptor.
+         */
+        void getDriversFromClients();//void* socket);
+
     public:
         /**
          * constructs a TaxiFlow.
@@ -60,5 +73,7 @@ class TaxiFlow {
          * with the details of the features of the game
          */
         void getInput();
+
+        static void* getClientsWrapper(void* tf);
 };
 #endif //EX3_TAXIFLOW_H

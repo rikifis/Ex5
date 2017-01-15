@@ -41,7 +41,7 @@ public:
 	* The Function operation: sending the input data to the socket         *
 	* who connect to this socket. 										   *
 	***********************************************************************/
-	int sendData(string data, int socketDesc);
+	int sendData(string data, int socketDescComm);
 	/***********************************************************************
 	* function name: recive	`											   *
 	* The Input: none										               *
@@ -49,7 +49,7 @@ public:
 	* The Function operation: getting data from the other socket and print *
 	* the data															   *
 	***********************************************************************/
-	int receiveData(char* buffer, int size, int socketDesc);
+	int receiveData(char* buffer, int   size, int socketDescComm);
     /***********************************************************************
     * function name: setIp	`											   *
     * The Input: string of the ip										   *
@@ -59,7 +59,11 @@ public:
     ***********************************************************************/
     void setIp(string ip);
 
-    int getDescriptor();
+    int getSocketDescriptor();
+
+    int getDescriptorCommunicateClient();
+
+	int acceptClient();
 };
 
 #endif /* TCP_H_ */
