@@ -4,6 +4,7 @@
 * methods of tcp socket type								*
 ************************************************************/
 
+#include <boost/iostreams/close.hpp>
 #include "Tcp.h"
 
 /***********************************************************************
@@ -27,7 +28,7 @@ Tcp::Tcp(bool isServers, int port_num) {
 * The Function operation: default destructor					       *
 ***********************************************************************/
 Tcp::~Tcp() {
-	// TODO Auto-generated destructor stub
+	close(this->socketDescriptor);
 }
 
 /***********************************************************************

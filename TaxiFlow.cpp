@@ -26,6 +26,7 @@ TaxiFlow::TaxiFlow(Socket* socket1) {
     clients = new vector<DriverDescriptor*>;
     pthread_mutex_init(&acceptMutex, 0);
     pthread_mutex_init(&addMutex, 0);
+
 }
 
 TaxiFlow::~TaxiFlow() {
@@ -38,6 +39,7 @@ TaxiFlow::~TaxiFlow() {
     delete clients;
     pthread_mutex_destroy(&acceptMutex);
     pthread_mutex_destroy(&addMutex);
+
 }
 
 void TaxiFlow::getInput() {
@@ -129,13 +131,29 @@ void TaxiFlow::addTrip() {
     cin >> id >> skip >> xStart >> skip >> yStart >> skip >> xEnd
         >> skip >> yEnd >> skip >> numPassengers >> skip >> tariff >> skip >> startTime;
     // gets the starting point from the map.
-    Point* start = new Point(xStart,yStart);//center.getMap()->getPoint(Point(xStart,yStart));
+    GridPt* start = center.getMap()->getPoint(Point(xStart,yStart));//center.getMap()->getPoint(Point(xStart,yStart));
     // gets the ending point from the map.
-    Point* end = new Point(xEnd,yEnd);//center.getMap()->getPoint(Point(xEnd,yEnd));
+    GridPt* end = center.getMap()->getPoint(Point(xEnd,yEnd));//center.getMap()->getPoint(Point(xEnd,yEnd));
     // creates the new trip.
     Trip* trip = new Trip(id, start, end, numPassengers, tariff, startTime);
+    int vecSize = calcRouteThreads.size();
+    calcRouteThreads.resize(vecSize + 1);
+
+    center.getMap()->initialize(); ///?????????????????????
+
+    trip->calcRoute;
+    center.addTrip(trip);
+
+/*    pthread_create(&calcRouteThreads[vecSize], NULL, trip->calcRoute, (void*)trip);
+
+    cout << "hi1 " << endl;
+
     // adds the trip to the center.
     center.addTrip(trip);
+
+    pthread_join (calcRouteThreads[vecSize], NULL);
+
+    cout << "hi2 " << endl;*/
 }
 
 void TaxiFlow::addCab() {

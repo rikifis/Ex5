@@ -21,10 +21,12 @@ class TaxiFlow {
         TaxiCenter center;
         Socket* socket;
         vector<DriverDescriptor*>* clients;
+        vector<pthread_t> calcRouteThreads;
 
         pthread_mutex_t acceptMutex;
         pthread_mutex_t addMutex;
-    /**
+
+        /**
          * method that runs the program.
          */
         void run();
@@ -75,5 +77,8 @@ class TaxiFlow {
         void getInput();
 
         static void* getClientsWrapper(void* tf);
-};
+
+
+
+    };
 #endif //EX3_TAXIFLOW_H

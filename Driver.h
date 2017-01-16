@@ -187,7 +187,7 @@ class Driver {
          * sets the route of driver.
          * @param route1 route for driver
          */
-        void setRoute(deque<Node*>* route1);
+        void setRoute();//deque<Node*>* route1);
         /**
          * gets the route from the driver
          * @return the route to drive

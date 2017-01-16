@@ -44,9 +44,9 @@ void TaxiCenter::sendTaxi() {
         if (currTrip->getStartTime() == time) {
             for (int j = 0; j < drivers.size(); j++) {
                 // start point of the trip.
-                start = map->getPoint(*(currTrip->getStart()));//(GridPt*) currTrip->getStart())->getPt());
+                start = map->getPoint(((GridPt*)currTrip->getStart())->getPt());//*(currTrip->getStart()));
                 // end point of the trip.
-                end = map->getPoint(*(currTrip->getEnd()));//(((GridPt*) currTrip->getEnd())->getPt());
+                end = map->getPoint((((GridPt*) currTrip->getEnd())->getPt()));//*(currTrip->getEnd())
                 if ((((GridPt*) drivers.at(j)->getLocation()) == start)
                     && !(drivers.at(j)->isDriving())) {
                     // gets the first driver.
@@ -54,7 +54,7 @@ void TaxiCenter::sendTaxi() {
                     currDriver->setTrip(currTrip);
                     currDriver->setNewTrip();
                     // calcs the route.
-                    currDriver->calcRoute(start, end);
+                    //currDriver->calcRoute(start, end);
                     // the driver drives.
                     currDriver->getRoute()->pop_front();
                     // next time the driver will know to drive.

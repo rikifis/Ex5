@@ -23,11 +23,13 @@ class Trip {
     private:
         int rideId;
         int meters;
-        Point* start;
-        Point* end;
+        Node* start;
+        Node* end;
         int numPassengers;
         double tariff;
         int startTime;
+        deque<Node*>* route;
+        pthread_mutex_t calcMutex;
 
         friend class boost::serialization::access;
         template<class Archive>
@@ -43,6 +45,7 @@ class Trip {
             ar & end;
             ar & numPassengers;
             ar & tariff;
+            ar & route;
             ar & startTime;
         }
     public:
@@ -55,7 +58,7 @@ class Trip {
          * @param tariff the trips tariff.
          * @param stratTime the starting time of the trip.
          */
-        Trip(int rideId, Point* start, Point* end, int numPassengers, double tariff, int stratTime);
+        Trip(int rideId, Node* start, Node* end, int numPassengers, double tariff, int stratTime);
         /**
          * default constructer.
          */
@@ -68,22 +71,22 @@ class Trip {
          * returns the starting point.
          * @return start
          */
-        Point* getStart();
+        Node* getStart();
         /**
          * sets the starting point of the trip.
          * @param s1 the new starting point.
          */
-        void setStart(Point* s1);
+        void setStart(Node* s1);
         /**
          * returns the ending point.
          * @return end.
          */
-        Point* getEnd();
+        Node* getEnd();
         /**
          * sets the ending point of the trip.
          * @param e1 the new ending point.
          */
-        void setEnd(Point* e1);
+        void setEnd(Node* e1);
         /**
          * returns the number of meters passed in trip.
          * @return meters.
@@ -118,5 +121,10 @@ class Trip {
          * @return startTime
          */
         int getStartTime();
+
+        void setRoute(deque<Node*>* r);
+        deque<Node*>* getRoute();
+
+        static void* calcRoute(void* trip);
 };
 #endif //EX3_TRIP_H

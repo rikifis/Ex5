@@ -96,8 +96,8 @@ void Driver::calcRoute(Node* start, Node* end) {
 deque<Node*>* Driver::getRoute() {
     return route;
 }
-void Driver::setRoute(deque<Node*>* route1) {
-    route = route1;
+void Driver::setRoute() {//deque<Node*>* route1) {
+    route = trip->getRoute();//route1;
 }
 
 void Driver::drive() {
