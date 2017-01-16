@@ -26,7 +26,6 @@ TaxiFlow::TaxiFlow(Socket* socket1) {
     clients = new vector<DriverDescriptor*>;
     pthread_mutex_init(&acceptMutex, 0);
     pthread_mutex_init(&addMutex, 0);
-
 }
 
 TaxiFlow::~TaxiFlow() {
@@ -141,19 +140,15 @@ void TaxiFlow::addTrip() {
 
     center.getMap()->initialize(); ///?????????????????????
 
-    trip->calcRoute;
-    center.addTrip(trip);
-
-/*    pthread_create(&calcRouteThreads[vecSize], NULL, trip->calcRoute, (void*)trip);
-
-    cout << "hi1 " << endl;
-
+    pthread_create(&calcRouteThreads[vecSize], NULL, trip->calcRoute, (void*)trip);
     // adds the trip to the center.
     center.addTrip(trip);
 
-    pthread_join (calcRouteThreads[vecSize], NULL);
+    pthread_join (calcRouteThreads[vecSize], NULL);//////////////////////not here
 
-    cout << "hi2 " << endl;*/
+    cout << "trip of time " << trip->getStartTime()
+         << " passed join. start is " << *((GridPt*)trip->getRoute()->at(0))
+         << "end is " << *((GridPt*)trip->getRoute()->at(trip->getRoute()->size() - 1)) << endl;
 }
 
 void TaxiFlow::addCab() {

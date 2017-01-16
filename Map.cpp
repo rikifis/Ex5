@@ -32,8 +32,8 @@ void Map::fillGrid() {
 }
 
 bool Map::isInGrid(Point pt) {
-    if ((pt.getX() >= 0) && (pt.getX() <= size.getX()
-        && (pt.getY() >= 0) && (pt.getY() <= size.getY()))) {
+    if ((pt.getX() >= 0) && (pt.getX() < size.getX()
+        && (pt.getY() >= 0) && (pt.getY() < size.getY()))) {
         return true;
     }
     return false;

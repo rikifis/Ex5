@@ -21,7 +21,7 @@ Driver::Driver() {
 }
 Driver::~Driver() {
     delete firstLocation;
-    delete route;
+  //  delete route;
 }
 int Driver::getId() {
     return id;
