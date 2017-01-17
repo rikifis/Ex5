@@ -13,6 +13,8 @@
 #include "DriverDescriptor.h"
 #include <unistd.h>
 using namespace std;
+//using namespace boost::iostreams;
+//using namespace boost::archive;
 /**
  * this class creates a taxiflow that gets the input from the user.
  */
@@ -21,10 +23,13 @@ class TaxiFlow {
         TaxiCenter center;
         Socket* socket;
         vector<DriverDescriptor*>* clients;
-        vector<pthread_t> calcRouteThreads;
-
+        vector<pthread_t> threadsVec;
+        bool go;
+        bool exit;
+        int counter;
         pthread_mutex_t acceptMutex;
         pthread_mutex_t addMutex;
+        pthread_mutex_t driveMutex;
 
         /**
          * method that runs the program.
@@ -60,6 +65,8 @@ class TaxiFlow {
          * @return a driverDescriptor.
          */
         void getDriversFromClients();//void* socket);
+
+        void communicateWithClient(DriverDescriptor* ds);
 
     public:
         /**

@@ -9,7 +9,6 @@ BOOST_CLASS_EXPORT_GUID(GridPt, "GridPt");
 BOOST_CLASS_EXPORT_GUID(Taxi, "Taxi");
 BOOST_CLASS_EXPORT_GUID(Luxury, "Luxury");
 using namespace std;
-using namespace boost::archive;
 /**
  * main func to run the client.
  * @param argc num of args

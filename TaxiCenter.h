@@ -2,6 +2,7 @@
 #define EX3_TAXICENTER_H
 #include <vector>
 #include "Driver.h"
+#include <pthread.h>
 using namespace std;
 /**
  * this class creates a Taxi Center.
@@ -12,6 +13,7 @@ class TaxiCenter {
         vector<Driver*> drivers;
         vector<Taxi*> taxis;
         vector<Trip*> trips;
+        vector<pthread_t>* calcRouteThreads;
         Map* map;
         int time;
     public:
@@ -89,5 +91,7 @@ class TaxiCenter {
          * @return current time
          */
         int getTime();
+
+        vector<pthread_t>* getCalcThreads();
 };
 #endif //EX3_TAXICENTER_H

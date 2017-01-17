@@ -5,27 +5,16 @@ BOOST_CLASS_EXPORT_GUID(GridPt, "GridPt");
 BOOST_CLASS_EXPORT_GUID(Taxi, "Taxi");
 BOOST_CLASS_EXPORT_GUID(Luxury, "Luxury");
 
-
-int main(int argc, char *argv[]) {
-    // checks we got a correct number of args.
-    if (argc < 2) {
-        return 0;
-    }
-    // initializes the servers socket.
-    Socket* socket = new Tcp(1, atoi(argv[1]));
-    TaxiFlow* flow = new TaxiFlow(socket);
-    // gets the input from the user and runs the taxi center.
-    flow->getInput();
-    delete  flow;
-    return 0;
-}
-
 TaxiFlow::TaxiFlow(Socket* socket1) {
     socket = socket1;
     socket->initialize();
     clients = new vector<DriverDescriptor*>;
     pthread_mutex_init(&acceptMutex, 0);
     pthread_mutex_init(&addMutex, 0);
+    pthread_mutex_init(&driveMutex, 0);
+    go = false;
+    exit = false;
+    counter = 0;
 }
 
 TaxiFlow::~TaxiFlow() {
@@ -38,7 +27,7 @@ TaxiFlow::~TaxiFlow() {
     delete clients;
     pthread_mutex_destroy(&acceptMutex);
     pthread_mutex_destroy(&addMutex);
-
+    pthread_mutex_destroy(&driveMutex);
 }
 
 void TaxiFlow::getInput() {
@@ -107,17 +96,20 @@ void TaxiFlow::addDrivers() {
     int numDrivers;
     // gets the number of drivers from the user.
     cin >> numDrivers;
-    vector<pthread_t> threadsVec(numDrivers);
+    threadsVec.resize(numDrivers);
     cout << "receiving " << numDrivers << " drivers:" << endl;
     for (int i = 0; i < numDrivers; i++) {
         cout << i << " ";
         pthread_create(&threadsVec[i], NULL, getClientsWrapper, (void*)this);
     }
-    for (int i = 0; i < numDrivers; i++) {
+    /*for (int i = 0; i < numDrivers; i++) {
          //void* driverDes;
          pthread_join (threadsVec[i], NULL);//&
          cout << "join " << i << " done" << endl;
          //DriverDescriptor* ds = (DriverDescriptor*)driverDes;
+    }*/
+    while (center.getDrivers().size() != numDrivers) {
+        sleep(1);
     }
 }
 
@@ -135,20 +127,17 @@ void TaxiFlow::addTrip() {
     GridPt* end = center.getMap()->getPoint(Point(xEnd,yEnd));//center.getMap()->getPoint(Point(xEnd,yEnd));
     // creates the new trip.
     Trip* trip = new Trip(id, start, end, numPassengers, tariff, startTime);
-    int vecSize = calcRouteThreads.size();
-    calcRouteThreads.resize(vecSize + 1);
+    int vecSize = center.getCalcThreads()->size();
+    center.getCalcThreads()->resize(vecSize + 1);
 
     center.getMap()->initialize(); ///?????????????????????
 
-    pthread_create(&calcRouteThreads[vecSize], NULL, trip->calcRoute, (void*)trip);
+    pthread_create(&(center.getCalcThreads()->at(vecSize)), NULL, trip->calcRoute, (void*)trip);
     // adds the trip to the center.
     center.addTrip(trip);
 
-    pthread_join (calcRouteThreads[vecSize], NULL);//////////////////////not here
+    //pthread_join (calcRouteThreads[vecSize], NULL);//////////////////////not here
 
-    cout << "trip of time " << trip->getStartTime()
-         << " passed join. start is " << *((GridPt*)trip->getRoute()->at(0))
-         << "end is " << *((GridPt*)trip->getRoute()->at(trip->getRoute()->size() - 1)) << endl;
 }
 
 void TaxiFlow::addCab() {
@@ -229,8 +218,10 @@ void TaxiFlow::getDriverLocation() {
 void TaxiFlow::drive() {
     // increases the time.
     center.setTime();
+    go = true;
+    int numDrivers = center.getDrivers().size();
     // sends the drivers to drive.
-    for (int i = 0; i < center.getDrivers().size(); i++) {
+   /* for (int i = 0; i < center.getDrivers().size(); i++) {
         if (center.getDrivers().at(i)->isDriving()) {
             // tells the client to be prepared to drive.
             socket->sendData("go", socket->getDescriptorCommunicateClient());
@@ -251,14 +242,19 @@ void TaxiFlow::drive() {
             socket->sendData(serial_str1, socket->getDescriptorCommunicateClient());
             delete newLocation;
         }
-    }
+    }*/
     // assign trips to the drivers who are ready for them.
+    while (counter != numDrivers) {
+        sleep(1);
+    }
+    go = false;
+    counter = 0;
     center.sendTaxi();
-    for (int i = 0; i < center.getDrivers().size(); i++) {
+    for (int i = 0; i < numDrivers; i++) {
         // if the driver just got a new trip.
         if (center.getDrivers().at(i)->gotNewTrip()) {
             // tells the client to be prepared to get a new trip.
-            socket->sendData("trip", socket->getDescriptorCommunicateClient());
+          /*  socket->sendData("trip", socket->getDescriptorCommunicateClient());
             // sends the trip.
             std::string serial_str;
             boost::iostreams::back_insert_device<std::string> inserter(serial_str);
@@ -271,7 +267,7 @@ void TaxiFlow::drive() {
             // flush the stream to finish writing into the buffer.
             s.flush();
             // sentd the new trip.
-            socket->sendData(serial_str, socket->getDescriptorCommunicateClient());
+            socket->sendData(serial_str, socket->getDescriptorCommunicateClient());*/
             // deletes the trip from the taxiCenter.
             delete (center.getDrivers().at(i)->getTrip());
             center.getDrivers().at(i)->setNewTrip();
@@ -280,11 +276,20 @@ void TaxiFlow::drive() {
 }
 
 void TaxiFlow::closeClients() {
-    int numClients = clients->size();
+    exit = true;
+
+
+    for (int i = 0; i < clients->size(); i++) {
+        //void* driverDes;
+        pthread_join (threadsVec[i], NULL);//&
+        cout << "join " << i << " done" << endl;
+        //DriverDescriptor* ds = (DriverDescriptor*)driverDes;
+    }
+   /* int numClients = clients->size();
     for (int i = 0; i < numClients; i++) {
         // tells the client he can close now.
         socket->sendData("exit", clients->at(i)->getDescriptor());
-    }
+    }*/
 }
 
 void* TaxiFlow::getClientsWrapper(void* tf) {
@@ -345,4 +350,39 @@ void TaxiFlow::getDriversFromClients() {//void* socket) {
 
     pthread_mutex_unlock(&addMutex);
 
+    communicateWithClient(ds);
+
+
+}
+
+void TaxiFlow::communicateWithClient(DriverDescriptor* ds) {
+    while (!exit) {
+        if (go && (ds->getPrevTime() != center.getTime())) {
+            pthread_mutex_lock(&driveMutex);
+            if (ds->getDriver()->isDriving()) {
+                // tells the client to be prepared to drive.
+                socket->sendData("go", ds->getDescriptor());
+                // drives the car.
+                ds->getDriver()->drive();
+                // sends the new location to client.
+                std::string serial_str1;
+                boost::iostreams::back_insert_device<std::string> inserter1(serial_str1);
+                boost::iostreams::stream
+                    <boost::iostreams::back_insert_device<std::string> > s1(inserter1);
+                boost::archive::binary_oarchive oa1(s1);
+                GridPt *newLocation = new GridPt(ds->getDriver()->getLocation()->getPt());
+                // serilizes the new location.
+                oa1 << newLocation;
+                // flush the stream to finish writing into the buffer
+                s1.flush();
+                // sends the data.
+                socket->sendData(serial_str1, ds->getDescriptor());
+                delete newLocation;
+                ds->setTime(center.getTime());
+            }
+            counter++;
+            pthread_mutex_unlock(&driveMutex);
+        }
+    }
+    socket->sendData("exit", ds->getDescriptor());
 }

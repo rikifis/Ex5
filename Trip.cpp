@@ -24,8 +24,6 @@ Trip::Trip() {
     pthread_mutex_init(&calcMutex, 0);
 }
 Trip::~Trip() {
-//    delete start;
-  //  delete end;
     delete route;
     pthread_mutex_destroy(&calcMutex);
 }

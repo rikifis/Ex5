@@ -3,11 +3,13 @@
 TaxiCenter::TaxiCenter(Map* map1) {
     map = map1;
     time = 0;
+    calcRouteThreads = new vector<pthread_t>;
 }
 
 TaxiCenter::TaxiCenter() {
     map = NULL;
     time = 0;
+    calcRouteThreads = NULL;
 }
 
 TaxiCenter::~TaxiCenter() {
@@ -26,6 +28,7 @@ TaxiCenter::~TaxiCenter() {
         delete trips.front();
         trips.erase(trips.begin());
     }
+    delete calcRouteThreads;
 }
 
 void TaxiCenter::answerCalls() {
@@ -42,6 +45,16 @@ void TaxiCenter::sendTaxi() {
         // gets the first trip.
         currTrip = trips.at(tripIndex);
         if (currTrip->getStartTime() == time) {
+
+            ////join
+
+            pthread_join (calcRouteThreads->at(tripIndex), NULL);
+
+
+            cout << "trip of time " << currTrip->getStartTime()
+                 << " passed join. start is " << *((GridPt*)currTrip->getRoute()->at(0))
+                 << "end is " << *((GridPt*)currTrip->getRoute()->at(currTrip->getRoute()->size() - 1)) << endl;
+
             for (int j = 0; j < drivers.size(); j++) {
                 // start point of the trip.
                 start = map->getPoint(((GridPt*)currTrip->getStart())->getPt());//*(currTrip->getStart()));
@@ -131,4 +144,8 @@ void TaxiCenter::setTime() {
 
 int TaxiCenter::getTime() {
     return time;
+}
+
+vector<pthread_t>* TaxiCenter::getCalcThreads() {
+    return calcRouteThreads;
 }

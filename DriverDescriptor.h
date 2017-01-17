@@ -11,6 +11,7 @@ class DriverDescriptor {
     private:
         Driver* driver;
         int descriptorCommunicateClient;
+        int prevDrivingTime;
 
         friend class boost::serialization::access;
         template<class Archive>
@@ -30,6 +31,8 @@ class DriverDescriptor {
         void setDescriptor(int sd);
         int getDescriptor();
         Driver* getDriver();
+        void setTime(int time);
+        int getPrevTime();
 };
 
 
