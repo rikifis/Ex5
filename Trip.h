@@ -2,6 +2,7 @@
 #define EX3_TRIP_H
 #include "Point.h"
 #include "GridPt.h"
+#include "Map.h"
 #include <boost/serialization/vector.hpp>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
@@ -25,11 +26,12 @@ class Trip {
         int meters;
         Node* start;
         Node* end;
+        Map* map;
         int numPassengers;
         double tariff;
         int startTime;
         deque<Node*>* route;
-        pthread_mutex_t calcMutex;
+        pthread_mutex_t* calcMutex;
 
         friend class boost::serialization::access;
         template<class Archive>
@@ -87,6 +89,9 @@ class Trip {
          * @param e1 the new ending point.
          */
         void setEnd(Node* e1);
+
+
+        void setMap(Map* m);
         /**
          * returns the number of meters passed in trip.
          * @return meters.
@@ -126,5 +131,8 @@ class Trip {
         deque<Node*>* getRoute();
 
         static void* calcRoute(void* trip);
+
+        void setMutex(pthread_mutex_t* mut);
+
 };
 #endif //EX3_TRIP_H

@@ -13,7 +13,8 @@ class TaxiCenter {
         vector<Driver*> drivers;
         vector<Taxi*> taxis;
         vector<Trip*> trips;
-        vector<pthread_t>* calcRouteThreads;
+        vector<pthread_t> calcRouteThreads;
+        pthread_mutex_t calcMutex;
         Map* map;
         int time;
     public:
@@ -92,6 +93,7 @@ class TaxiCenter {
          */
         int getTime();
 
-        vector<pthread_t>* getCalcThreads();
+        void calcTripRoute(Trip* trip);
+        //vector<pthread_t>* getCalcThreads();
 };
 #endif //EX3_TAXICENTER_H

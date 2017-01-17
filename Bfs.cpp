@@ -10,6 +10,9 @@ Bfs::~Bfs() {
 }
 
 deque<Node*>* Bfs::bfs(Node* current, Node* target) {
+
+    cout << "hello erom bfs " << endl;
+
     deque<Node*>* nodes = new deque<Node*>();
     // until we find the target.
     while (!(*current == *target)) {

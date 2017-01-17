@@ -10,7 +10,8 @@ Trip::Trip(int id, Node* s, Node* e, int np, double t, int st) {
     tariff = t;
     startTime = st;
     route = NULL;
-    pthread_mutex_init(&calcMutex, 0);
+    //pthread_mutex_init(&calcMutex, 0);
+    map = NULL;
 }
 Trip::Trip() {
     rideId = 0;
@@ -21,11 +22,12 @@ Trip::Trip() {
     tariff = 0;
     startTime = 0;
     route = NULL;
-    pthread_mutex_init(&calcMutex, 0);
+    //pthread_mutex_init(&calcMutex, 0);
+    map = NULL;
 }
 Trip::~Trip() {
     delete route;
-    pthread_mutex_destroy(&calcMutex);
+    //pthread_mutex_destroy(&calcMutex);
 }
 
 Node* Trip::getStart() {
@@ -42,6 +44,10 @@ void Trip::setEnd(Node* e1) {
 
 Node* Trip::getEnd() {
     return end;
+}
+
+void Trip::setMap(Map* m) {
+    map = m;
 }
 
 int Trip::getMeters() {
@@ -80,16 +86,27 @@ deque<Node*>* Trip::getRoute() {
     return route;
 }
 
+void Trip::setMutex(pthread_mutex_t* mut) {
+    calcMutex = mut;
+}
+
 void* Trip::calcRoute(void* trip) {
-    pthread_mutex_lock(&((Trip*)trip)->calcMutex);
+
+    cout << "before calc mux " << endl;
+
+    pthread_mutex_lock(((Trip*)trip)->calcMutex);
+
+    cout << "inside calc mux " << endl;
 
     Bfs b = Bfs();
     Node* start = (GridPt*)((Trip*)trip)->getStart();
     Node* end = (GridPt*)((Trip*)trip)->getEnd();
-    //map->initialize();
+    ((Trip*)trip)->map->initialize();
     start->setPassed();
     ((Trip*)trip)->setRoute(b.bfs(start, end));
 
-    pthread_mutex_unlock(&((Trip*)trip)->calcMutex);
+    pthread_mutex_unlock(((Trip*)trip)->calcMutex);
+
+    cout << "after calc mux " << endl;
 
 }

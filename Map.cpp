@@ -73,6 +73,9 @@ Point Map::getSize() {
 }
 
 void Map::initialize() {
+
+    cout << "initialize number " << endl;
+
     for (int i = 0; i < size.getX(); i++) {
         for (int j = 0; j < size.getY(); j++) {
             if (points[i][j].isPassed() && !(points[i][j].isObstacle())) {

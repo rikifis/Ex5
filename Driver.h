@@ -41,6 +41,7 @@ class Driver {
         GridPt* location;
         deque<Node*>* route;
         Trip* trip;
+        int prevDrivingTime;
 
         friend class boost::serialization::access;
         template<class Archive>
@@ -215,5 +216,10 @@ class Driver {
          * change the bool newtrip of driver.
          */
         void setNewTrip();
+
+
+
+        void setTime(int time);
+        int getPrevTime();
 };
 #endif //EX2_DRIVER_H

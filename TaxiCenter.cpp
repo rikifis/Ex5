@@ -3,13 +3,13 @@
 TaxiCenter::TaxiCenter(Map* map1) {
     map = map1;
     time = 0;
-    calcRouteThreads = new vector<pthread_t>;
+    pthread_mutex_init(&calcMutex, 0);
 }
 
 TaxiCenter::TaxiCenter() {
     map = NULL;
     time = 0;
-    calcRouteThreads = NULL;
+    pthread_mutex_init(&calcMutex, 0);
 }
 
 TaxiCenter::~TaxiCenter() {
@@ -28,7 +28,8 @@ TaxiCenter::~TaxiCenter() {
         delete trips.front();
         trips.erase(trips.begin());
     }
-    delete calcRouteThreads;
+    pthread_mutex_destroy(&calcMutex);
+   // delete calcRouteThreads;
 }
 
 void TaxiCenter::answerCalls() {
@@ -44,16 +45,12 @@ void TaxiCenter::sendTaxi() {
     while (!(trips.empty())  && (trips.size() > tripIndex)) {
         // gets the first trip.
         currTrip = trips.at(tripIndex);
-        if (currTrip->getStartTime() == time) {
-
+        if (currTrip->getStartTime() <= time) {
             ////join
-
-            pthread_join (calcRouteThreads->at(tripIndex), NULL);
-
-
-            cout << "trip of time " << currTrip->getStartTime()
-                 << " passed join. start is " << *((GridPt*)currTrip->getRoute()->at(0))
-                 << "end is " << *((GridPt*)currTrip->getRoute()->at(currTrip->getRoute()->size() - 1)) << endl;
+            //pthread_join (calcRouteThreads.at(tripIndex), NULL);
+      //      cout << "trip of time " << currTrip->getStartTime()
+        //         << " passed join. start is " << *((GridPt*)currTrip->getRoute()->at(0))
+          //       << "end is " << *((GridPt*)currTrip->getRoute()->at(currTrip->getRoute()->size() - 1)) << endl;
 
             for (int j = 0; j < drivers.size(); j++) {
                 // start point of the trip.
@@ -64,16 +61,22 @@ void TaxiCenter::sendTaxi() {
                     && !(drivers.at(j)->isDriving())) {
                     // gets the first driver.
                     currDriver = drivers.at(j);
+
+                    pthread_join (calcRouteThreads.at(tripIndex), NULL);
+                    cout << "trip of time " << currTrip->getStartTime()
+                         << " passed join. start is " << *((GridPt*)currTrip->getRoute()->at(0))
+                         << "end is " << *((GridPt*)currTrip->getRoute()->at(currTrip->getRoute()->size() - 1)) << endl;
+
+
                     currDriver->setTrip(currTrip);
                     currDriver->setNewTrip();
-                    // calcs the route.
-                    //currDriver->calcRoute(start, end);
-                    // the driver drives.
+                    currDriver->setRoute();
+
                     currDriver->getRoute()->pop_front();
                     // next time the driver will know to drive.
                     currDriver->setDriving();
 
-                    //delete trips.at(tripIndex);
+                    delete trips.at(tripIndex);
 
                     trips.erase(trips.begin() + tripIndex);
                     driverCounter++;
@@ -146,6 +149,18 @@ int TaxiCenter::getTime() {
     return time;
 }
 
-vector<pthread_t>* TaxiCenter::getCalcThreads() {
-    return calcRouteThreads;
+void TaxiCenter::calcTripRoute(Trip* trip) {
+    int vecSize = calcRouteThreads.size();
+    calcRouteThreads.resize(vecSize + 1);
+
+    trip->setMap(map);
+    trip->setMutex(&calcMutex);
+
+    pthread_create(&(calcRouteThreads.at(vecSize)), NULL, trip->calcRoute, (void*)trip);
+    // adds the trip to the center.
+    addTrip(trip);
 }
+
+/*vector<pthread_t>* TaxiCenter::getCalcThreads() {
+    return calcRouteThreads;
+}*/

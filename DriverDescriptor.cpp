@@ -7,7 +7,6 @@
 DriverDescriptor::DriverDescriptor(Driver* driver1, int descriptorCommunicateClient1) {
     driver = driver1;
     descriptorCommunicateClient = descriptorCommunicateClient1;
-    prevDrivingTime = -1;
 }
 DriverDescriptor::DriverDescriptor() {
 
@@ -23,10 +22,4 @@ int DriverDescriptor::getDescriptor() {
 }
 Driver* DriverDescriptor::getDriver() {
     return driver;
-}
-void DriverDescriptor::setTime(int time) {
-    prevDrivingTime = time;
-}
-int DriverDescriptor::getPrevTime() {
-    return prevDrivingTime;
 }

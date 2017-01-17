@@ -89,7 +89,7 @@ int main(int argc, char *argv[]) {
         socket->receiveData(buffer, sizeof(buffer), socket->getSocketDescriptor());
         command = buffer;
         // if server sent "trip" we prepare to get a trip object.
-        if (strcmp(command.data(), "trip") == 0) {
+       /* if (strcmp(command.data(), "trip") == 0) {
             if (trip != NULL) {
                 delete trip;
             }
@@ -102,7 +102,7 @@ int main(int argc, char *argv[]) {
             // set the trip in driver.
             driver->setTrip(trip);
         // if server sent "go" we prepare to get a new location.
-        } else if (strcmp(command.data(), "go") == 0) {
+        } else*/ if (strcmp(command.data(), "go") == 0) {
             if (location != NULL) {
                 delete location;
             }

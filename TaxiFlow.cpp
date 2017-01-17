@@ -15,6 +15,7 @@ TaxiFlow::TaxiFlow(Socket* socket1) {
     go = false;
     exit = false;
     counter = 0;
+
 }
 
 TaxiFlow::~TaxiFlow() {
@@ -127,16 +128,10 @@ void TaxiFlow::addTrip() {
     GridPt* end = center.getMap()->getPoint(Point(xEnd,yEnd));//center.getMap()->getPoint(Point(xEnd,yEnd));
     // creates the new trip.
     Trip* trip = new Trip(id, start, end, numPassengers, tariff, startTime);
-    int vecSize = center.getCalcThreads()->size();
-    center.getCalcThreads()->resize(vecSize + 1);
 
-    center.getMap()->initialize(); ///?????????????????????
+    center.calcTripRoute(trip);
 
-    pthread_create(&(center.getCalcThreads()->at(vecSize)), NULL, trip->calcRoute, (void*)trip);
-    // adds the trip to the center.
-    center.addTrip(trip);
-
-    //pthread_join (calcRouteThreads[vecSize], NULL);//////////////////////not here
+    cout << "trip of time " << trip->getStartTime() << "after calc func " << endl;
 
 }
 
@@ -200,6 +195,9 @@ void TaxiFlow::addCab() {
 }
 
 void TaxiFlow::getDriverLocation() {
+
+    cout << "im in case 4 " << endl;
+
     int id;
     // gets the drivers id.
     cin >> id;
@@ -208,6 +206,12 @@ void TaxiFlow::getDriverLocation() {
     // looks for the driver.
     for (int i = 0; i < drivers.size(); i++) {
         if (id == drivers.at(i)->getId()) {
+            while (drivers.at(i)->getPrevTime() != center.getTime()) {
+
+                cout << "sleeping" << endl;
+
+                sleep(1);
+            }
             // prints the location of the given driver.
             cout << *((GridPt*)(drivers.at(i)->getLocation())) << endl;
             break;
@@ -250,7 +254,7 @@ void TaxiFlow::drive() {
     go = false;
     counter = 0;
     center.sendTaxi();
-    for (int i = 0; i < numDrivers; i++) {
+ /*   for (int i = 0; i < numDrivers; i++) {
         // if the driver just got a new trip.
         if (center.getDrivers().at(i)->gotNewTrip()) {
             // tells the client to be prepared to get a new trip.
@@ -269,10 +273,10 @@ void TaxiFlow::drive() {
             // sentd the new trip.
             socket->sendData(serial_str, socket->getDescriptorCommunicateClient());*/
             // deletes the trip from the taxiCenter.
-            delete (center.getDrivers().at(i)->getTrip());
+          /* delete (center.getDrivers().at(i)->getTrip());
             center.getDrivers().at(i)->setNewTrip();
         }
-    }
+    }*/
 }
 
 void TaxiFlow::closeClients() {
@@ -357,8 +361,9 @@ void TaxiFlow::getDriversFromClients() {//void* socket) {
 
 void TaxiFlow::communicateWithClient(DriverDescriptor* ds) {
     while (!exit) {
-        if (go && (ds->getPrevTime() != center.getTime())) {
-            pthread_mutex_lock(&driveMutex);
+        //pthread_mutex_lock(&driveMutex);
+
+        if (go && (ds->getDriver()->getPrevTime() != center.getTime())) {
             if (ds->getDriver()->isDriving()) {
                 // tells the client to be prepared to drive.
                 socket->sendData("go", ds->getDescriptor());
@@ -370,7 +375,7 @@ void TaxiFlow::communicateWithClient(DriverDescriptor* ds) {
                 boost::iostreams::stream
                     <boost::iostreams::back_insert_device<std::string> > s1(inserter1);
                 boost::archive::binary_oarchive oa1(s1);
-                GridPt *newLocation = new GridPt(ds->getDriver()->getLocation()->getPt());
+                GridPt* newLocation = new GridPt(ds->getDriver()->getLocation()->getPt());
                 // serilizes the new location.
                 oa1 << newLocation;
                 // flush the stream to finish writing into the buffer
@@ -378,8 +383,9 @@ void TaxiFlow::communicateWithClient(DriverDescriptor* ds) {
                 // sends the data.
                 socket->sendData(serial_str1, ds->getDescriptor());
                 delete newLocation;
-                ds->setTime(center.getTime());
             }
+            pthread_mutex_lock(&driveMutex);
+            ds->getDriver()->setTime(center.getTime());
             counter++;
             pthread_mutex_unlock(&driveMutex);
         }

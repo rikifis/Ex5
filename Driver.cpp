@@ -15,6 +15,7 @@ Driver::Driver(int id1, int age1, MaritalStatus status1, int cabId1, int experie
     route = NULL;
     newTrip = false;
     trip = NULL;
+    prevDrivingTime = -1;
 }
 Driver::Driver() {
 
@@ -106,7 +107,7 @@ void Driver::drive() {
     while (i < cab->getType()) {
         if (!route->empty()) {
             location = map->getPoint(((GridPt*) (route->front()))->getPt());
-            route->pop_front();
+            route->erase(route->begin());//pop_front();
             cab->setKm(0.001);
         }
         i++;
@@ -127,4 +128,10 @@ bool Driver::gotNewTrip() {
 }
 void Driver::setNewTrip() {
     newTrip = !newTrip;
+}
+void Driver::setTime(int time) {
+    prevDrivingTime = time;
+}
+int Driver::getPrevTime() {
+    return prevDrivingTime;
 }
