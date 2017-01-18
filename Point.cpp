@@ -1,5 +1,4 @@
 #include "Point.h"
-using namespace std;
 
 Point::Point(int x1, int y1) {
     x = x1;
@@ -33,6 +32,7 @@ void Point::setY(int newY) {
 bool Point::operator == (const Point &p1) const {
     return ((getX() == p1.getX()) && (getY() == p1.getY()));
 }
+
 bool Point::operator != (const Point &p1) const {
     return ((getX() != p1.getX()) || (getY() != p1.getY()));
 }

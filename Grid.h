@@ -19,6 +19,7 @@
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
 using namespace std;
+using namespace boost::archive;
 /*
  * Grid build a an abstract grid of nodes.
  */
@@ -28,6 +29,7 @@ class Grid {
         * fills the grid with points.
         */
         virtual void fillGrid() = 0;
+
         friend class boost::serialization::access;
         /**
         * seralize a grid object.

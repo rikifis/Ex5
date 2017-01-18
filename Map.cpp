@@ -73,9 +73,6 @@ Point Map::getSize() {
 }
 
 void Map::initialize() {
-
-    cout << "initialize number " << endl;
-
     for (int i = 0; i < size.getX(); i++) {
         for (int j = 0; j < size.getY(); j++) {
             if (points[i][j].isPassed() && !(points[i][j].isObstacle())) {
@@ -86,12 +83,14 @@ void Map::initialize() {
         }
     }
 }
+
 void Map::addObstacle(Node* obs) {
     GridPt* obstacle = getPoint(((GridPt*)obs)->getPt());
     obstacle->setObstacle();
     obstacle->setPassed();
     obstacles->push_back(obstacle);
 }
+
 vector<Node*>* Map::getObstacles() {
     return obstacles;
 }

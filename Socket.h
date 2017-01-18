@@ -29,7 +29,6 @@ using namespace std;
 
 #define IP "127.0.0.1"
 
-
 class Socket {
 	protected:
 		//true is the socket is for a server, false if for a client
