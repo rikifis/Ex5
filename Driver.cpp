@@ -19,7 +19,6 @@ Driver::Driver(int id1, int age1, MaritalStatus status1, int cabId1, int experie
 }
 
 Driver::Driver() {
-
 }
 
 Driver::~Driver() {

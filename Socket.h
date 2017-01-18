@@ -79,14 +79,29 @@ class Socket {
 		* the data															   *
 		***********************************************************************/
 		virtual int receiveData(char* buffer, int size, int socketDescComm) = 0;
-
-		virtual void setIp(string ip) = 0;
-
-		virtual int getSocketDescriptor() = 0;
-
-		virtual int getDescriptorCommunicateClient() = 0;
-
-		virtual int acceptClient() = 0;
+		/***********************************************************************
+		* function name: setIp	`											   *
+		* The Input: string of the ip										   *
+		* The output: none         											   *
+		* The Function operation: getting the ip and						   *
+		* seting it as the sockets ip										   *
+		***********************************************************************/
+		void setIp(string ip);
+		/***********************************************************************
+		 * get the socket descriptor.
+		 * @return the socket descriptor.
+		 ***********************************************************************/
+		int getSocketDescriptor();
+		/***********************************************************************
+		 * fets the socket desc' of the client for communication.
+		 * @return the client's desc'.
+		 ***********************************************************************/
+		int getDescriptorCommunicateClient();
+		/***********************************************************************
+		 * accepts the client.
+		 * @return if error accepted returns error numbr.
+		 ***********************************************************************/
+		int acceptClient();
 };
 
 #endif /* SOCKET_H_ */

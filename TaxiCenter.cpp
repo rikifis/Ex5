@@ -45,12 +45,6 @@ void TaxiCenter::sendTaxi() {
         // gets the first trip.
         currTrip = trips.at(tripIndex);
         if (currTrip->getStartTime() == time) {
-            ////join
-            //pthread_join (calcRouteThreads.at(tripIndex), NULL);
-      //      cout << "trip of time " << currTrip->getStartTime()
-        //         << " passed join. start is " << *((GridPt*)currTrip->getRoute()->at(0))
-          //       << "end is " << *((GridPt*)currTrip->getRoute()->at(currTrip->getRoute()->size() - 1)) << endl;
-
             for (int j = 0; j < drivers.size(); j++) {
                 // start point of the trip.
                 start = map->getPoint(((GridPt*)currTrip->getStart())->getPt());//*(currTrip->getStart()));
@@ -60,24 +54,20 @@ void TaxiCenter::sendTaxi() {
                     && !(drivers.at(j)->isDriving())) {
                     // gets the first driver.
                     currDriver = drivers.at(j);
-
+                    // waits for trip to be calculated.
                     pthread_join (calcRouteThreads.at(tripIndex), NULL);
-                    cout << "trip of time " << currTrip->getStartTime()
-                         << " passed join. start is " << *((GridPt*)currTrip->getRoute()->at(0))
-                         << "end is " << *((GridPt*)currTrip->getRoute()->at(currTrip->getRoute()->size() - 1)) << endl;
-
-
+                   // sets the drivers trip.
                     currDriver->setTrip(currTrip);
                     currDriver->setNewTrip();
                     currDriver->setRoute();
 
-                    currDriver->getRoute()->pop_back(); ///jghbdgjjjjjjjjjjjjjjjjjjjjjjjjjj
-//                    currDriver->getRoute()->pop_front();
+                    // pops the start of the route.
+                    currDriver->getRoute()->pop_back();
                     // next time the driver will know to drive.
                     currDriver->setDriving();
 
+                    // deletes trip from taxi center.
                     delete trips.at(tripIndex);
-
                     trips.erase(trips.begin() + tripIndex);
                     driverCounter++;
                     break;
@@ -114,10 +104,12 @@ void TaxiCenter::addTaxi(Taxi* t) {
     // adds the taxi to the back of the list.
     taxis.push_back(t);
 }
+
 void TaxiCenter::addTrip(Trip* tr) {
     // adds the trip to the back of the list.
     trips.push_back(tr);
 }
+
 vector<Driver*> TaxiCenter::getDrivers() {
     return drivers;
 }
@@ -152,10 +144,11 @@ int TaxiCenter::getTime() {
 void TaxiCenter::calcTripRoute(Trip* trip) {
     int vecSize = calcRouteThreads.size();
     calcRouteThreads.resize(vecSize + 1);
-
+    // sets the map of the trip.
     trip->setMap(map);
     trip->setMutex(&calcMutex);
     // adds the trip to the center.
     addTrip(trip);
+    // thread for calculating the trip.
     pthread_create(&(calcRouteThreads.at(vecSize)), NULL, trip->calcRoute, (void*)trip);
 }
