@@ -92,7 +92,10 @@ class TaxiCenter {
          * @return current time
          */
         int getTime();
-
+        /**
+         * calcs a trip's route.
+         * @param trip the trip for calculation.
+         */
         void calcTripRoute(Trip* trip);
 };
 #endif //EX3_TAXICENTER_H

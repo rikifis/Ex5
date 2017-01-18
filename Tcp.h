@@ -58,11 +58,20 @@ public:
     * seting it as the sockets ip										   *
     ***********************************************************************/
     void setIp(string ip);
-
-    int getSocketDescriptor();
-
-    int getDescriptorCommunicateClient();
-
+	/***********************************************************************
+	 * get the socket descriptor.
+	 * @return the socket descriptor.
+	 ***********************************************************************/
+	int getSocketDescriptor();
+	/***********************************************************************
+	 * fets the socket desc' of the client for communication.
+	 * @return the client's desc'.
+	 ***********************************************************************/
+	int getDescriptorCommunicateClient();
+	/***********************************************************************
+	 * accepts the client.
+	 * @return if error accepted returns error numbr.
+	 ***********************************************************************/
 	int acceptClient();
 };
 

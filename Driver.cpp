@@ -18,7 +18,6 @@ Driver::Driver(int id1, int age1, MaritalStatus status1, int cabId1, int experie
     prevDrivingTime = -1;
 }
 Driver::Driver() {
-
 }
 Driver::~Driver() {
     delete firstLocation;

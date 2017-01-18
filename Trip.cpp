@@ -88,22 +88,17 @@ void Trip::setMutex(pthread_mutex_t* mut) {
 }
 
 void* Trip::calcRoute(void* trip) {
-
-    cout << "before calc mux " << endl;
-
+    // the first thread locks the mutex and goes in.
     pthread_mutex_lock(((Trip*)trip)->calcMutex);
-
-    cout << "inside calc mux " << endl;
 
     Bfs b = Bfs();
     Node* start = (GridPt*)((Trip*)trip)->getStart();
     Node* end = (GridPt*)((Trip*)trip)->getEnd();
     ((Trip*)trip)->map->initialize();
     start->setPassed();
+    // sets the route for the trip.
     ((Trip*)trip)->setRoute(b.bfs(start, end));
 
+    // unlocks the mutex.
     pthread_mutex_unlock(((Trip*)trip)->calcMutex);
-
-    cout << "after calc mux " << endl;
-
 }

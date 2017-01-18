@@ -89,8 +89,10 @@ class Trip {
          * @param e1 the new ending point.
          */
         void setEnd(Node* e1);
-
-
+        /**
+         * sets a map for the trip.
+         * @param m the map.
+         */
         void setMap(Map* m);
         /**
          * returns the number of meters passed in trip.
@@ -126,13 +128,26 @@ class Trip {
          * @return startTime
          */
         int getStartTime();
-
+        /**
+         * sets the route of the trip.
+         * @param r the route.
+         */
         void setRoute(deque<Node*>* r);
+        /**
+         * gets the route of the trip.
+         * @return the route.
+         */
         deque<Node*>* getRoute();
-
-        static void* calcRoute(void* trip);
-
+        /**
+         * sets the mutex of the current trip.
+         * @param mut
+         */
         void setMutex(pthread_mutex_t* mut);
-
+        /**
+         * calcs the route of the trip.
+         * @param trip the trip we're calculaing.
+         * @return the route.
+         */
+        static void* calcRoute(void* trip);
 };
 #endif //EX3_TRIP_H
