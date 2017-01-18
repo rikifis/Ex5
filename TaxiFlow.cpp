@@ -19,7 +19,7 @@ TaxiFlow::TaxiFlow(Socket* socket1) {
 }
 
 TaxiFlow::~TaxiFlow() {
-    delete socket;
+    //delete socket;
     // deletes the clients.
     while (clients->size() != 0) {
         delete clients->front();
@@ -81,6 +81,8 @@ void TaxiFlow::run() {
                 break;
             case 7:
                 closeClients();
+               //cd src
+                // center.closeThreads();
                 break;
             // for '9' - drives the cars.
             case 9:
@@ -213,7 +215,7 @@ void TaxiFlow::getDriverLocation() {
                 sleep(1);
             }
             // prints the location of the given driver.
-            cout << *((GridPt*)(drivers.at(i)->getLocation())) << endl;
+            cout << *(drivers.at(i)->getLocation()) << endl;
             break;
         }
     }
@@ -289,6 +291,7 @@ void TaxiFlow::closeClients() {
         cout << "join " << i << " done" << endl;
         //DriverDescriptor* ds = (DriverDescriptor*)driverDes;
     }
+
    /* int numClients = clients->size();
     for (int i = 0; i < numClients; i++) {
         // tells the client he can close now.

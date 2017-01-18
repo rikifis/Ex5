@@ -71,7 +71,6 @@ int main(int argc, char *argv[]) {
     // get the taxi of the driver.
     socket->receiveData(buffer, sizeof(buffer), socket->getSocketDescriptor());
 
-    cout << "waiting for taxi " << endl;
     Taxi* taxi;
     boost::iostreams::basic_array_source<char> device2(buffer, sizeof(buffer));
     boost::iostreams::stream<boost::iostreams::basic_array_source<char> > s2(device2);
@@ -79,30 +78,14 @@ int main(int argc, char *argv[]) {
     ia2 >> taxi;
     driver->setCab(taxi);
 
-    cout << taxi->getId() << " " << taxi->getColor() << endl;
-
     string command;
-    Trip* trip = new Trip();
     GridPt* location = new GridPt();
     // a loop to get the information from the server.
     do {
         socket->receiveData(buffer, sizeof(buffer), socket->getSocketDescriptor());
         command = buffer;
-        // if server sent "trip" we prepare to get a trip object.
-       /* if (strcmp(command.data(), "trip") == 0) {
-            if (trip != NULL) {
-                delete trip;
-            }
-            // gets a trip.
-            socket->receiveData(buffer, sizeof(buffer), socket->getSocketDescriptor());
-            boost::iostreams::basic_array_source<char> device4(buffer, sizeof(buffer));
-            boost::iostreams::stream<boost::iostreams::basic_array_source<char> > s4(device4);
-            boost::archive::binary_iarchive ia4(s4);
-            ia4 >> trip;
-            // set the trip in driver.
-            driver->setTrip(trip);
         // if server sent "go" we prepare to get a new location.
-        } else*/ if (strcmp(command.data(), "go") == 0) {
+        if (strcmp(command.data(), "go") == 0) {
             if (location != NULL) {
                 delete location;
             }
@@ -117,9 +100,7 @@ int main(int argc, char *argv[]) {
         }
     // if server sent "exit" we exit the loop.
     } while (strcmp(command.data(), "exit") != 0);
-    delete trip;
     delete driver;
-    //delete ds;
     delete location;
     delete taxi;
     delete socket;

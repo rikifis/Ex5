@@ -10,7 +10,6 @@ Trip::Trip(int id, Node* s, Node* e, int np, double t, int st) {
     tariff = t;
     startTime = st;
     route = NULL;
-    //pthread_mutex_init(&calcMutex, 0);
     map = NULL;
 }
 Trip::Trip() {
@@ -22,12 +21,10 @@ Trip::Trip() {
     tariff = 0;
     startTime = 0;
     route = NULL;
-    //pthread_mutex_init(&calcMutex, 0);
     map = NULL;
 }
 Trip::~Trip() {
     delete route;
-    //pthread_mutex_destroy(&calcMutex);
 }
 
 Node* Trip::getStart() {

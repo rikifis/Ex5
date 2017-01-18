@@ -14,5 +14,6 @@ int main(int argc, char *argv[]) {
     // gets the input from the user and runs the taxi center.
     flow->getInput();
     delete flow;
+    delete socket;
     return 0;
 }

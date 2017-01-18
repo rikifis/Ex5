@@ -39,7 +39,7 @@ class Driver {
         bool newTrip;
         GridPt* firstLocation;
         GridPt* location;
-        deque<Node*>* route;
+        vector<Node*>* route;
         Trip* trip;
         int prevDrivingTime;
 
@@ -193,7 +193,7 @@ class Driver {
          * gets the route from the driver
          * @return the route to drive
          */
-        deque<Node*>* getRoute();
+        vector<Node*>* getRoute();
         /**
          * drives the car.
          */

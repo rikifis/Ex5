@@ -12,7 +12,7 @@ Driver::Driver(int id1, int age1, MaritalStatus status1, int cabId1, int experie
     driving = false;
     firstLocation = new GridPt(Point(0,0));
     location = NULL;
-    route = NULL;
+    route = new vector<Node*>;
     newTrip = false;
     trip = NULL;
     prevDrivingTime = -1;
@@ -22,7 +22,7 @@ Driver::Driver() {
 }
 Driver::~Driver() {
     delete firstLocation;
-  //  delete route;
+    delete route;
 }
 int Driver::getId() {
     return id;
@@ -92,13 +92,15 @@ void Driver::calcRoute(Node* start, Node* end) {
     Bfs b = Bfs();
     map->initialize();
     start->setPassed();
-    route = b.bfs(start, end);
+    //route = b.bfs(start, end);
 }
-deque<Node*>* Driver::getRoute() {
+vector<Node*>* Driver::getRoute() {
     return route;
 }
-void Driver::setRoute() {//deque<Node*>* route1) {
-    route = trip->getRoute();//route1;
+void Driver::setRoute() {
+    for (int i = trip->getRoute()->size() - 1; i >= 0 ; i--) {
+        route->push_back(trip->getRoute()->at(i));
+    }
 }
 
 void Driver::drive() {
@@ -106,8 +108,8 @@ void Driver::drive() {
     // regular taxi goes one block and luxury two blocks
     while (i < cab->getType()) {
         if (!route->empty()) {
-            location = map->getPoint(((GridPt*) (route->front()))->getPt());
-            route->erase(route->begin());//pop_front();
+            location = map->getPoint(((GridPt*)(route->back()))->getPt());
+            route->pop_back();
             cab->setKm(0.001);
         }
         i++;

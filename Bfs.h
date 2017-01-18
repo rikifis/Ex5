@@ -3,6 +3,7 @@
 #include <iostream>
 #include <deque>
 #include "Node.h"
+#include "GridPt.h"
 using namespace std;
 /*
  * this class will find the best route from one point to another

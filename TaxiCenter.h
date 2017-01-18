@@ -94,6 +94,5 @@ class TaxiCenter {
         int getTime();
 
         void calcTripRoute(Trip* trip);
-        //vector<pthread_t>* getCalcThreads();
 };
 #endif //EX3_TAXICENTER_H
