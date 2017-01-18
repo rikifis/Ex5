@@ -64,6 +64,7 @@ class Driver {
             ar & location;
             ar & newTrip;
             ar & route;
+            ar & prevDrivingTime;
         }
     public:
         /**
@@ -179,12 +180,6 @@ class Driver {
          */
         Trip* getTrip();
         /**
-         * calcs the route.
-         * @param start start point
-         * @param end end point
-         */
-        void calcRoute(Node* start, Node* end);
-        /**
          * sets the route of driver.
          * @param route1 route for driver
          */
@@ -216,10 +211,15 @@ class Driver {
          * change the bool newtrip of driver.
          */
         void setNewTrip();
-
-
-
+        /**
+         * sets the time of previous driving time.
+         * @param time
+         */
         void setTime(int time);
+        /**
+         * gets the prevtime of driver
+         * @return prevDrivingTime
+         */
         int getPrevTime();
 };
 #endif //EX2_DRIVER_H

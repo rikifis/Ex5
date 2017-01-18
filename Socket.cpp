@@ -3,11 +3,8 @@
 * socket and method prints the errors occurs while			*
 * creating sockets, in all the different methods involved	*
 ************************************************************/
-
 #include "Socket.h"
 #include <unistd.h>
-
-
 
 #define NONE 0
 
@@ -35,6 +32,4 @@ Socket::Socket() {
 Socket::~Socket() {
 	close(socketDescriptor);
 }
-
-
 

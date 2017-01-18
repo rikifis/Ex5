@@ -74,6 +74,11 @@ class Node {
          * @return true if it's the same node, false otherwise.
          */
         virtual bool operator == (const Node &n1) const = 0;
+        /**
+         * offers the option to use != on grid points(that inherits from Node).
+         * @param n1 the node to be compared.
+         * @return false if it's the same node, true otherwise.
+         */
         virtual bool operator != (const Node &n1) const = 0;
 };
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(Node);

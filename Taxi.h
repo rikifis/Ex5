@@ -33,6 +33,7 @@ class Taxi {
         MANUFACTURER manufacturer;
         COLOR color;
         double tariff;
+
     protected:
         friend class boost::serialization::access;
         template<class Archive>
@@ -48,6 +49,7 @@ class Taxi {
             ar & color;
             ar & tariff;
         }
+
     public:
         /**
          * constructs a Taxi cab.

@@ -30,6 +30,7 @@ class Map : public Grid {
         GridPt points[1000][1000];
         Point size;
         vector<Node*>* obstacles;
+
         friend class boost::serialization::access;
         template<class Archive>
         /**

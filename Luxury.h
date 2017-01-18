@@ -2,6 +2,8 @@
 #define EX3_LUXURY_H
 #include "Taxi.h"
 #include <boost/serialization/export.hpp>
+using namespace std;
+using namespace boost::archive;
 /**
  * this class creates a Luxury cab that inherites from Taxi.
  */
@@ -12,6 +14,7 @@ class Luxury : public Taxi {
         MANUFACTURER manufacturer;
         COLOR color;
         double tariff;
+
         friend class boost::serialization::access;
         template<class Archive>
         /**
@@ -31,11 +34,14 @@ class Luxury : public Taxi {
          * @param manufacturer1 the cabs manufacturer.
          * @param color1 the cabs color.
          * @param tariff1 the tariff for a drive in the cab.
+         * @return a luxury object
          */
         Luxury(int cabId1, MANUFACTURER manufacturer1, COLOR color1);
-
+        /**
+         * a default constructor of luxury
+         * @return a luxury object
+         */
         Luxury();
-
         /**
          * destructs the Luxury cab.
          */
