@@ -2,7 +2,6 @@
 #include "Driver.h"
 #include "Luxury.h"
 #include "Tcp.h"
-#include "DriverDescriptor.h"
 
 BOOST_CLASS_EXPORT_GUID(Node, "Node");
 BOOST_CLASS_EXPORT_GUID(GridPt, "GridPt");

@@ -86,22 +86,22 @@ class Socket {
 		* The Function operation: getting the ip and						   *
 		* seting it as the sockets ip										   *
 		***********************************************************************/
-		void setIp(string ip);
+        virtual void setIp(string ip) = 0;
 		/***********************************************************************
 		 * get the socket descriptor.
 		 * @return the socket descriptor.
 		 ***********************************************************************/
-		int getSocketDescriptor();
+        virtual int getSocketDescriptor() = 0;
 		/***********************************************************************
 		 * fets the socket desc' of the client for communication.
 		 * @return the client's desc'.
 		 ***********************************************************************/
-		int getDescriptorCommunicateClient();
+        virtual int getDescriptorCommunicateClient() = 0;
 		/***********************************************************************
 		 * accepts the client.
 		 * @return if error accepted returns error numbr.
 		 ***********************************************************************/
-		int acceptClient();
+        virtual int acceptClient() = 0;
 };
 
 #endif /* SOCKET_H_ */
